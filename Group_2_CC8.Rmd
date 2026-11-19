@@ -56,7 +56,25 @@ Import the data as an object called `mytilus` and check its structure. Plot the 
 
 ```{r import-data, message=FALSE}
 # mytilus <-
+mytilus <- read.csv("data/mytilus.csv")
 
+# check structure
+dim(mytilus)
+str(mytilus)
+summary(mytilus)
+
+# import tidyverse
+library(tidyverse)
+
+# plot allele frequency against distance, coloured by substrate
+ggplot(mytilus, aes(y = lap94y_freq, x = miles_east, colour = substrate)) +
+  geom_point() +
+  labs(
+    y = "94y Frequency (proportion of 0–1)",
+    x = "Distance (miles east of Southport, Connecticut)",
+    colour = "Substrate"
+  ) +
+  theme_classic()
 ```
 
 **Question 1:** Describe the shape of the relationship between allele frequency and distance. What values can the response take, and why does that make a linear model with normal residuals a poor choice for it?
