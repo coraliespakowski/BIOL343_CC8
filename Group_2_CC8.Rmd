@@ -132,12 +132,40 @@ P = 1 / (1 + e^(−Y))
 Using the estimates from your GLM, calculate Y and the predicted frequency for a Mud population at 10 miles and at 60 miles. Then add the fitted curve for each substrate to your plot from the first task.
 
 ```{r link-scale}
+# Y for Mud population at 10 miles
+Y10 <- -1.89247 + (0.03322954 * 10) + 0.23598134
 
+# Y for Mud population at 60 miles
+Y60 <- -1.89247 + (0.03322954 * 60) + 0.23598134
+
+# Predicted frequency for Mud population at 10 miles
+P10 <- 1 / (1 + exp(-Y10))
+P10
+
+# Predicted frequency for Mud population at 10 miles
+P60 <- 1 / (1 + exp(-Y60))
+P60
+
+# Fitted curve for each substrate added to plot from first task
+ggplot(mytilus, aes(y = lap94y_freq, x = miles_east, colour = substrate)) +
+  geom_point() +
+  labs(
+    y = "94y allele frequency (0–1)",
+    x = "Distance east of Southport, Connecticut (miles)",
+    colour = "Substrate"
+  ) +
+  geom_smooth(
+    method = "glm",
+    method.args = list(family = binomial(link = "logit")),
+    formula = y ~ x,
+    se = FALSE
+  ) +
+  theme_classic()
 ```
 
 **Question 3:** Report the two predicted frequencies. On the logit scale the distance effect is a straight line; what does the estimate for distance mean on that scale, and why does a change of 50 miles raise the predicted frequency by a different amount in the middle of the cline than at its ends?
 
-**Answer:**
+**Answer:** The predicted frequencies for for Mud population at 10 and 60 miles were 0.2101215 and 0.5835306 respectively. The quasi-binomial GLM's distance estimate is 0.033230, meaning that for every mile east, the 94y allele log-odds increase by 0.033230. This indicates positive relationship between distance and allele frequency. However, the relationship between log-odds and alle frequency is non-linear. The frequency changes faster in the middle of the cline where predicted frequencies are closer to 0.5. The changes are slower at either end where frequencies approach 0 or 1. This is why the same 50-mile increase raises the predicted frequency by a different amount in the middle of the cline than at its ends.
 
 # Part 3 — Quality checks {-}
 
@@ -146,7 +174,29 @@ Using the estimates from your GLM, calculate Y and the predicted frequency for a
 Make the standard diagnostic plots for your GLM, including the one that shows influential points. Look back at your plot of the data and at the diagnostic plots, and identify any populations that look problematic. Find their rows, and refit the model without them so you can see how much they matter.
 
 ```{r qaqc, message=FALSE, warning=FALSE}
+# Diagnostic plots for GLM
+library(ggfortify)
+autoplot(glm_mod2, which = 1:4, data = mytilus)
 
+# Identify problematic populations/rows
+cooks <- cooks.distance(glm_mod2)
+problem_rows <- which(cooks > 4 / nrow(mytilus))
+mytilus[problem_rows, ]
+
+# Remove problem rows
+mytilus_clean <- mytilus[-problem_rows, ]
+glm_mod2_clean <- glm(
+  lap94y_freq ~ miles_east + substrate,
+  family = quasibinomial,
+  data = mytilus_clean
+)
+
+# Refit model without the problematic rows
+autoplot(glm_mod2_clean, which = 1:4, data = mytilus_clean)
+
+# comparing summaries
+summary(glm_mod2)
+summary(glm_mod2_clean)
 ```
 
 **Question 4:** Do the diagnostic plots show a problem with the model? If some populations look problematic, what happens to your model if you remove them? How could you deal with these problems if this was your project?
