@@ -117,7 +117,11 @@ summary(glm_mod2)
 
 **Question 2:** Which predicted frequencies from the linear model are impossible? What does the warning from the binomial GLM mean? Compare the estimates and the standard errors of the two GLMs: what is the dispersion parameter of the second one, what would a value of 1 mean, and which of the two GLMs would you report?
 
-**Answer:**
+**Answer:** The linear model produced a fitted-value range of 0.1095792 to 1.0173667. The maximum predicted frequency of 1.0173667 is greater than 1 and is impossible since allele frequencies must fall between 0 and 1.
+
+The warning message from the binomial GLM occured because the response variable (lap94y_freq) contains non-integer proportions instead of whole-number counts or proportions with known denominators (this dataset has unknown corresponding sample sizes).
+
+For both GLMs, the coefficient estimates produced were identical. They do, however, differ in their standard errors with the quasi-binomial model having smaller standard errors. This is because its estimated dispersion parameter was 0.05246957, which indicates underdispersion relative to the binomial model. A dispersion parameter of 1 would indicate that dispersion matches the binomial model's expectations. Less than 1 means less variability than expected or underdispersion. As such, I would report the quasi-binomial model because it estimates dispersion rather than assuming it is 1.
 
 # Reading the coefficients
 
