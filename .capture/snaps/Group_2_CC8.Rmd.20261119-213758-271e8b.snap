@@ -1,0 +1,172 @@
+---
+title: "BIOL343 Coding Challenge 8: Generalized linear models and experimental design"
+author: "Group # — names and student numbers in the chunk below"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Group Members {-}
+
+```{r group_members}
+# Name - Queen's Student Number
+
+# 1. Kaylee Ellwood - 20391007
+# 2. Margo Kaminska - 20449041
+# 3. Coralie Spakowski - 20471806
+# 4. Noah Lu - 20483156
+# 5. Tianyi Wang - 20386987
+
+```
+
+# DO THIS FIRST {-}
+
+Copy and paste these two lines into your R Console to install the current positpal, then **restart R** (*Session → Restart R*, or the restart button in the Console) before anything else. **Do not include them as a code chunk.**
+
+```
+install.packages("remotes")
+remotes::install_url("https://quantitative.bio/downloads/positpal.tar.gz", upgrade = "never")
+```
+
+After the restart, paste this line, replacing `FILENAME.Rmd` with the name you are going to use for the .R or .Rmd file you are going to upload (rename the template first, e.g. `Group_#_CC8.Rmd`, and use that exact name):
+
+```
+positpal::start("FILENAME.Rmd")
+```
+
+Before you run it: create or open an R project folder for this challenge so that it is your working directory, then save this file in that folder under the name you will upload, and check that autosave is on (*File → Auto Save*). Closing the laptop or quitting Positron does not lose your log: when you reopen the project folder, positpal picks up where you left off and says so in the Console after your first command. **Every time you open Positron to work on this file, run the `start()` line again**, even if positpal says it picked up where you left off; it continues the same log and never erases it. See OnQ and use the positpal chatbot if you are having trouble with positpal.
+
+# Part 1 — Import and inspect {-}
+
+The data file is `data/mytilus.csv`: one row per population of blue mussels (*Mytilus edulis*), with the frequency of the 94y allele at the *Lap* locus, the population's distance east along the coast in miles, and the substrate it was collected from. The instructions describe the study. **Do not edit the file by hand.**
+
+So far every model you have fitted has assumed normally distributed residuals. This week the response is a proportion, and you will fit a model that does not make that assumption. The last two tasks are about how data like these are collected and how an experiment could be designed to answer the same kind of question.
+
+As in earlier challenges, the tasks tell you **what** to produce, not which function to use. The starter lines in some chunks are commented out so that the blank template knits; remove the `#` as you fill them in.
+
+# Import and plot the cline
+
+Import the data as an object called `mytilus` and check its structure. Plot the allele frequency (y) against distance (x), coloured by substrate, with axis labels, a legend title and a clean theme.
+
+```{r import-data, message=FALSE}
+# mytilus <-
+mytilus <- read.csv("data/mytilus.csv")
+
+# check structure
+dim(mytilus)
+str(mytilus)
+head(mytilus)
+summary(mytilus)
+
+# import tidyverse
+library(tidyverse)
+
+# plot allele frequency against distance, coloured by substrate
+ggplot(mytilus, aes(y = lap94y_freq, x = miles_east, colour = substrate)) +
+  geom_point() +
+  labs(
+    y = "94y allele frequency (0–1)",
+    x = "Distance east of Southport, Connecticut (miles)",
+    colour = "Substrate"
+  ) +
+  theme_classic()
+```
+
+**Question 1:** Describe the shape of the relationship between allele frequency and distance. What values can the response take, and why does that make a linear model with normal residuals a poor choice for it?
+
+**Answer:** The relationship between allele frequency seems both positive an non-linear. Up until about 75 miles, the frequency increases gradually before leveling off at higher distances. The response variable (allele frequency) can only take values between 0 and 1 since it represents a proportion. A linear model with normal residuals is a poor choice for this since it assumes an unbounded variable, as in a variable with no fixed upper or lower limits on the values the model can predict. It also assumes constant residual variance such that the spread of the residual errors should remain roughly the same across all predicted values. Allele frequencies are bound between 0 and 1, their variance depends on the mean. A linear model could predict impossible allele frequencies below 0 or above 1. 
+
+# Part 2 — A logistic GLM {-}
+
+# Linear model versus logistic GLM
+
+Fit a linear model of allele frequency with distance and substrate as predictors, print the summary, and find the range of its fitted values. Then fit the same model as a generalized linear model for a proportion (binomial errors, logit link) and print the summary. Finally, refit the GLM so that it estimates the dispersion instead of assuming it, and print that summary too.
+
+```{r glm-fit}
+# lm_mod <-
+lm_mod <- lm(lap94y_freq ~ miles_east + substrate, data = mytilus)
+summary(lm_mod)
+
+# glm_mod <-
+glm_mod <- glm()
+summary(glm_mod)
+
+#over/under dispersed, change family to quasi poisson or quasi binomial (aka add quasi to whatever model using)
+# glm_mod2 <-
+```
+
+**Question 2:** Which predicted frequencies from the linear model are impossible? What does the warning from the binomial GLM mean? Compare the estimates and the standard errors of the two GLMs: what is the dispersion parameter of the second one, what would a value of 1 mean, and which of the two GLMs would you report?
+
+**Answer:**
+
+# Reading the coefficients
+
+The GLM's estimates are on the logit (log-odds) scale. To turn a value Y on that scale into a frequency P, use
+
+P = 1 / (1 + e^(−Y))
+
+Using the estimates from your GLM, calculate Y and the predicted frequency for a Mud population at 10 miles and at 60 miles. Then add the fitted curve for each substrate to your plot from the first task.
+
+```{r link-scale}
+
+```
+
+**Question 3:** Report the two predicted frequencies. On the logit scale the distance effect is a straight line; what does the estimate for distance mean on that scale, and why does a change of 50 miles raise the predicted frequency by a different amount in the middle of the cline than at its ends?
+
+**Answer:**
+
+# Part 3 — Quality checks {-}
+
+# Check the model and the data
+
+Make the standard diagnostic plots for your GLM, including the one that shows influential points. Look back at your plot of the data and at the diagnostic plots, and identify any populations that look problematic. Find their rows, and refit the model without them so you can see how much they matter.
+
+```{r qaqc, message=FALSE, warning=FALSE}
+
+```
+
+**Question 4:** Do the diagnostic plots show a problem with the model? If some populations look problematic, what happens to your model if you remove them? How could you deal with these problems if this was your project?
+
+**Answer:**
+
+# Part 4 — Experimental design {-}
+
+# Is it the substrate or the place?
+
+Summarise the distance of the populations on each substrate (number of populations, smallest, mean and largest distance). Then fit your GLM with substrate as the only predictor, print the summary, and compare its substrate estimates with those from the model that also includes distance.
+
+```{r confounding}
+
+```
+
+**Question 5:** Why are the substrate effects so much larger when distance is left out of the model? Is this study an experiment or an observational survey, and which element of a designed experiment is missing that would let you separate the effect of substrate from the effect of place? Briefly describe an experiment that could test whether substrate itself affects 94y frequency (or survival of 94y carriers).
+
+**Answer:**
+
+# Laying out a field trial
+
+A plant breeder wants to compare grain yield of hybrid and inbred corn. The trial has **5 blocks** (areas of a field) and **4 seed families**: 2 hybrid and 2 inbred. Every family is planted in every block, with **2 plants per family per block**, and the plants are placed at random within each block.
+
+Draw a diagram showing the experimental design. You don't have to draw out every single plant, but make sure the design is clear, and you have labelled blocks and individuals, and which individuals belong to the same seed family (hint: using shapes or colours with a legend can help here). Draw it by hand or with any drawing tool, save it as an image (e.g. `design.png`) in your project folder, and show it in this document by adding a line `![Experimental design](design.png)` below this paragraph (outside any code chunk).
+
+
+**Question 6:** What is the replicate for the comparison of hybrid and inbred corn: a plant or a family? How many independent replicates of each line does the trial have, and what would be wrong with analysing the 40 plants as independent replicates? Why is every family planted in every block, with positions randomized within blocks, rather than (say) all hybrids in blocks 1–2 and all inbreds in blocks 3–5?
+
+**Answer:**
+
+# DO THIS LAST {-}
+
+When your document is finished, knit it, open the `.html` in a web browser and **print it to PDF** (*File → Print → Save as PDF*; name it `Group_#_CC8.pdf`). Then copy and paste this into the R Console to stop positpal and create your coding log. **Do not include it as a code chunk.**
+
+```
+positpal::stop_capture()
+positpal::export_capture()
+```
+
+`export_capture()` prints the name and location of the `my-capture-YYYYMMDD-HHMMSS.zip` it creates beside this file. **Each group member** uploads their own `.zip` to the **"CC8 — Coding Log (individual)"** dropbox on OnQ; the group's `.Rmd`, `.html` and **`.pdf`** (OnQ shows uploaded HTML as source code, so the PDF is what gets graded; the `.html` is a back-up) go to your section's **TUT02-CC8** or **TUT03-CC8** folder. Submissions without the log are incomplete. If `export_capture()` fails, zip the `.capture` folder yourself and upload that instead.

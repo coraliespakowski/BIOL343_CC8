@@ -1,1 +1,5 @@
 {"chunk":null,"ts":"2026-11-19T16:47:03Z","pid":35262,"engine":"r","severity":"error","render":false,"text":"## Error: \u001b[1m\u001b[22mProblem while computing aesthetics.\n\u001b[36mℹ\u001b[39m Error occurred in the 1st layer.\n\u001b[1mCaused by error:\u001b[22m\n\u001b[33m!\u001b[39m object 'lap94_freq' not found"}
+{"chunk":null,"ts":"2026-11-19T16:53:00Z","pid":35262,"engine":"r","severity":"error","render":false,"text":"## Error: object 'lap94y_freq' not found"}
+{"chunk":null,"ts":"2026-11-19T21:40:04Z","pid":35262,"engine":"r","severity":"warning","render":false,"warning":"## Warning: non-integer #successes in a binomial glm!"}
+{"chunk":null,"ts":"2026-11-19T21:43:22Z","pid":35262,"engine":"r","severity":"warning","render":false,"warning":"## Warning: non-integer #successes in a binomial glm!"}
+{"chunk":null,"ts":"2026-11-20T02:01:15Z","pid":35262,"engine":"r","severity":"warning","render":false,"warning":"## Warning: non-integer #successes in a binomial glm!"}

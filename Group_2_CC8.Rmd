@@ -61,6 +61,7 @@ mytilus <- read.csv("data/mytilus.csv")
 # check structure
 dim(mytilus)
 str(mytilus)
+head(mytilus)
 summary(mytilus)
 
 # import tidyverse
@@ -70,8 +71,8 @@ library(tidyverse)
 ggplot(mytilus, aes(y = lap94y_freq, x = miles_east, colour = substrate)) +
   geom_point() +
   labs(
-    y = "94y Frequency (proportion of 0–1)",
-    x = "Distance (miles east of Southport, Connecticut)",
+    y = "94y allele frequency (0–1)",
+    x = "Distance east of Southport, Connecticut (miles)",
     colour = "Substrate"
   ) +
   theme_classic()
@@ -79,7 +80,7 @@ ggplot(mytilus, aes(y = lap94y_freq, x = miles_east, colour = substrate)) +
 
 **Question 1:** Describe the shape of the relationship between allele frequency and distance. What values can the response take, and why does that make a linear model with normal residuals a poor choice for it?
 
-**Answer:**
+**Answer:** The relationship between allele frequency seems both positive an non-linear. Up until about 75 miles, the frequency increases gradually before leveling off at higher distances. The response variable (allele frequency) can only take values between 0 and 1 since it represents a proportion. A linear model with normal residuals is a poor choice for this since it assumes an unbounded variable, as in a variable with no fixed upper or lower limits on the values the model can predict. It also assumes constant residual variance such that the spread of the residual errors should remain roughly the same across all predicted values. Allele frequencies are bound between 0 and 1, their variance depends on the mean. A linear model could predict impossible allele frequencies below 0 or above 1. 
 
 # Part 2 — A logistic GLM {-}
 
@@ -89,11 +90,29 @@ Fit a linear model of allele frequency with distance and substrate as predictors
 
 ```{r glm-fit}
 # lm_mod <-
+lm_mod <- lm(lap94y_freq ~ miles_east + substrate, data = mytilus)
+# summary of linear model
+summary(lm_mod)
+# range of fitted values
+range(fitted(lm_mod))
 
 # glm_mod <-
+glm_mod <- glm(
+  lap94y_freq ~ miles_east + substrate,
+  data = mytilus,
+  family = binomial(link = "logit")
+)
+# GLM summary
+summary(glm_mod)
 
 # glm_mod2 <-
-
+glm_mod2 <- glm(
+  lap94y_freq ~ miles_east + substrate,
+  data = mytilus,
+  family = quasibinomial(link = "logit")
+)
+# summary of quasi-binomial GLM
+summary(glm_mod2)
 ```
 
 **Question 2:** Which predicted frequencies from the linear model are impossible? What does the warning from the binomial GLM mean? Compare the estimates and the standard errors of the two GLMs: what is the dispersion parameter of the second one, what would a value of 1 mean, and which of the two GLMs would you report?
