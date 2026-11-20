@@ -23,3 +23,9 @@
 {"chunk":null,"ts":"2026-11-20T18:19:59Z","pid":35262,"engine":"r","severity":"error","render":false,"text":"## Error: there is no package called ‘ggfortify’"}
 {"chunk":null,"ts":"2026-11-20T18:20:02Z","pid":35262,"engine":"r","severity":"error","render":false,"text":"## Error: \u001b[1m\u001b[22mObjects of class \u001b[34m<glm>\u001b[39m are not supported by\nautoplot.\n\u001b[36mℹ\u001b[39m Have you loaded the required package?"}
 {"chunk":null,"ts":"2026-11-20T18:29:16Z","pid":35262,"engine":"r","severity":"error","render":false,"text":"## Error: there is no package called ‘positpall’"}
+{"chunk":null,"ts":"2026-11-20T19:44:39Z","pid":35262,"engine":"r","severity":"warning","render":false,"warning":"## Warning: non-integer #successes in a binomial glm!"}
+{"chunk":null,"ts":"2026-11-20T19:44:39Z","pid":35262,"engine":"r","severity":"warning","render":false,"warning":"## Warning: non-integer #successes in a binomial glm!"}
+{"chunk":null,"ts":"2026-11-20T19:44:39Z","pid":35262,"engine":"r","severity":"warning","render":false,"warning":"## Warning: non-integer #successes in a binomial glm!"}
+{"chunk":null,"ts":"2026-11-20T19:48:37Z","pid":35262,"engine":"r","severity":"warning","render":false,"warning":"## Warning: non-integer #successes in a binomial glm!"}
+{"chunk":null,"ts":"2026-11-20T19:48:38Z","pid":35262,"engine":"r","severity":"warning","render":false,"warning":"## Warning: non-integer #successes in a binomial glm!"}
+{"chunk":null,"ts":"2026-11-20T19:48:38Z","pid":35262,"engine":"r","severity":"warning","render":false,"warning":"## Warning: non-integer #successes in a binomial glm!"}

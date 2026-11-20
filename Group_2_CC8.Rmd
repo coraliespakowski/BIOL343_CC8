@@ -146,6 +146,30 @@ P10
 P60 <- 1 / (1 + exp(-Y60))
 P60
 
+# Predicted
+class(mytilus$substrate)
+unique(mytilus$substrate)
+levels(mytilus$substrate)
+
+mytilus$substrate <- as.factor(mytilus$substrate)
+
+predict_data <- expand.grid(
+  miles_east = seq(
+    min(mytilus$miles_east),
+    max(mytilus$miles_east),
+    length.out = 100
+  ),
+  substrate = levels(mytilus$substrate)
+)
+
+predict_data
+
+predict_data$predicted <- predict(
+  glm_mod2,
+  newdata = predict_data,
+  type = "response"
+)
+
 # Fitted curve for each substrate added to plot from first task
 ggplot(mytilus, aes(y = lap94y_freq, x = miles_east, colour = substrate)) +
   geom_point() +
@@ -154,11 +178,14 @@ ggplot(mytilus, aes(y = lap94y_freq, x = miles_east, colour = substrate)) +
     x = "Distance east of Southport, Connecticut (miles)",
     colour = "Substrate"
   ) +
-  geom_smooth(
-    method = "glm",
-    method.args = list(family = binomial(link = "logit")),
-    formula = y ~ x,
-    se = FALSE
+  geom_line(
+    data = predict_data,
+    aes(x = miles_east, y = predicted, colour = substrate)
+  ) +
+  labs(
+    x = "Distance east of Southport, Connecticut (miles)",
+    y = "94y allele frequency (0-1)",
+    colour = "Substrate"
   ) +
   theme_classic()
 ```
@@ -201,7 +228,7 @@ summary(glm_mod2_clean)
 
 **Question 4:** Do the diagnostic plots show a problem with the model? If some populations look problematic, what happens to your model if you remove them? How could you deal with these problems if this was your project?
 
-**Answer:**
+**Answer:** The diagnostic plots show 7 populations that are potentially problematic. Cook's distance test was run using a threshold of 4/n. Rows 34, 41, 67, 87, 91, 92, and 100 were flagged. After removing these populations and refitting the model, the substrate coefficients decreased. Mud and Rock p-values increased. Mud (p = 0.828) remained statistically insignificant, while Rock (p = 0.172) also became statistically insignificant. The distance coefficient increased a bit but maintained a high statistical significance (p<2e-16). This suggests that the relationship between distance east and allele frequency is relatively consistent. However, following the removal of the problematic populations, we see that it is possible Mud and Rock substrates were highly sensitive to the populations that are no longer in the data set. If this was my project, I would revisit these 7 populations and investigate potential errors that could have come about for instance in sampling, in recording, chance variation, or from specific environmental conditions. Some things could be corrected immediately such as a mistake in data entry. If an error could not be corrected, I would remove that data from my models. However, before deciding whether to completely exclude the influential populations, I would want to consider approaches or methodologies that might be more appropriate since I want the final conclusions to accurately represent the biological patterns in the data.
 
 # Part 4 — Experimental design {-}
 
@@ -210,12 +237,31 @@ summary(glm_mod2_clean)
 Summarise the distance of the populations on each substrate (number of populations, smallest, mean and largest distance). Then fit your GLM with substrate as the only predictor, print the summary, and compare its substrate estimates with those from the model that also includes distance.
 
 ```{r confounding}
+# Summarise distance by substrate
+mytilus %>%
+  group_by(substrate) %>%
+  summarise(
+    n = n(),
+    smallest_distance = min(miles_east),
+    mean_distance = mean(miles_east),
+    largest_distance = max(miles_east)
+  )
 
+# GLM with substrate as only predictor
+glm_sub <- glm(
+  lap94y_freq ~ substrate,
+  family = quasibinomial,
+  data = mytilus
+)
+summary(glm_sub)
+
+# Compare with the model including geographic distance
+summary(glm_mod2)
 ```
 
 **Question 5:** Why are the substrate effects so much larger when distance is left out of the model? Is this study an experiment or an observational survey, and which element of a designed experiment is missing that would let you separate the effect of substrate from the effect of place? Briefly describe an experiment that could test whether substrate itself affects 94y frequency (or survival of 94y carriers).
 
-**Answer:**
+**Answer:** Substrate effects are so much larger when distance is left out of the model because substrate and geographic location are likely confounded. As you move east, salinity increaces, and allele frequency also increases. As a result, some of the apparent substrate effect may actually be explained by geographic location. This study is an observational survey because mussels were collected from naturally occurring populations rather than randomly assigned to treatments. Random assignment would be the element of a designed experiment that is missing which would let me separate the effect of substrate from the effect of place. To test the effect of substrate, I would collect mussels from several populations and randomly assign them to replicated environments containing Cobble, Mud, or Rock. I would keep salinity and other environmental conditions constant and measure allele frequency over time to determine whether substrate itself has an effect.
 
 # Laying out a field trial
 
@@ -223,10 +269,12 @@ A plant breeder wants to compare grain yield of hybrid and inbred corn. The tria
 
 Draw a diagram showing the experimental design. You don't have to draw out every single plant, but make sure the design is clear, and you have labelled blocks and individuals, and which individuals belong to the same seed family (hint: using shapes or colours with a legend can help here). Draw it by hand or with any drawing tool, save it as an image (e.g. `design.png`) in your project folder, and show it in this document by adding a line `![Experimental design](design.png)` below this paragraph (outside any code chunk).
 
+![Experimental design](IMG_0632.jpg)
+
 
 **Question 6:** What is the replicate for the comparison of hybrid and inbred corn: a plant or a family? How many independent replicates of each line does the trial have, and what would be wrong with analysing the 40 plants as independent replicates? Why is every family planted in every block, with positions randomized within blocks, rather than (say) all hybrids in blocks 1–2 and all inbreds in blocks 3–5?
 
-**Answer:**
+**Answer:** The replicate comparison is a family since the comparison is between genetic lines and not individual plants. The trial has 2 independent genetic replicates per line type (2 hybrid families and 2 inbred families). Analysing the 40 plants as independent replicates would be wrong since plants from the same family are not actually independent. This would be pseudoreplication. This would artificially inflate the degrees of freedom which would make standard errors appear much smaller than in reality. This may also increase false positives as it is much more likely to claim a statistically significant difference between hybrids and inbreds when none actually exists. Additionally, this may result in confounding family variation with line-type variation. Every family is planted in every block, with positions randomized within blocks to account for the environmental differences in the different fields (e.g. soil or sunlight). This in turn lowers bias since we are looking at the impact of genetic mutation, rather than the impact of the location.
 
 # DO THIS LAST {-}
 
